@@ -1,5 +1,5 @@
+use crate::token::LiaToken;
 use std::collections::{HashMap, HashSet};
-use token::LiaToken;
 use syn::{Token as RsToken, Ident};
 use proc_macro::{TokenTree};
 

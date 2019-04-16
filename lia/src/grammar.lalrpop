@@ -9,7 +9,7 @@ grammar;
 extern {
     enum LiaToken {
        Num => LiaToken::RustToken(RsToken::Literal(Lit::Int(<Name>), _)),
-       String => LiaToken::RustToken(RsToken::Literal(Lit::Str_(<Name>), _)),
+       String => LiaToken::RustToken(RsToken::Literal(Lit::Str(<Name>), _)),
        Ident => LiaToken::RustToken(RsToken::Ident(<Ident>)),
        Op => LiaToken::RustToken(RsToken::BinOp(<BinOp>)),
        OpEq => LiaToken::RustToken(RsToken::BinOpEq(<BinOp>)),

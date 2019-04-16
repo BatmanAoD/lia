@@ -1,5 +1,5 @@
-use syntax::parse::token::{Token as RsToken};
-use syntax::tokenstream::TokenTree;
+use syn::Token as RsToken;
+use proc_macro::TokenTree;
 
 #[derive(Debug, Clone)]
 pub enum LiaToken {

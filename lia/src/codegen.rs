@@ -2,7 +2,7 @@ use syn::{BinOp, Expr, Stmt, Item, Path, Ident, PathSegment, PathArguments, Toke
 use syntax::ext::base::ExtCtxt;
 use syntax::ptr::P;
 
-use ast::{LiaExpr, LiaStmt, LiaFn, prefix_ident};
+use crate::ast::{LiaExpr, LiaStmt, LiaFn, prefix_ident};
 
 fn rs_ident_to_path(mut segs: Vec<Ident>) -> Path {
     {
