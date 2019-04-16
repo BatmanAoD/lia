@@ -14,3 +14,7 @@ lalrpop-util = "0.16.1"
 
 [build-dependencies]
 lalrpop = "0.16.1"
+
+[dependencies.syn]
+version = "*"
+features = ["full"]

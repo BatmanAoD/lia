@@ -1,8 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use token::LiaToken;
-use syntax::parse::token::{Token as RsToken, BinOpToken, str_to_ident};
-use syntax::tokenstream::TokenTree;
-use syntax::ast::Ident;
+use syn::{Token as RsToken, Ident};
+use proc_macro::{TokenTree};
 
 #[derive(Debug, Clone)]
 pub enum LiaExpr {
@@ -39,7 +38,7 @@ pub struct LiaFn {
 }
 
 pub fn prefix_ident(id: &Ident, prefix: &str) -> Ident {
-    str_to_ident(format!("{}{}", prefix, id.name.as_str()).as_str())
+    format!("{}{}", prefix, id.name.as_str()).as_str().into()
 }
 
 fn get_mapping(mapping: &mut HashMap<Ident, Ident>, id: &Ident) -> Ident {

@@ -1,19 +1,18 @@
 use std::str::FromStr;
-use syntax::ast::{Name, Ident};
-use syntax::parse::token::{Token as RsToken, BinOpToken, Lit, DelimToken, intern};
+use syn::{Ident, Token as RsToken, BinOp, Lit, MacroDelimiter as DelimToken};
 use super::ast::{LiaExpr, LiaStmt, LiaFn};
 use super::token::LiaToken;
-use syntax::tokenstream::TokenTree;
+use proc_macro::TokenTree;
 
 grammar;
 
 extern {
     enum LiaToken {
-       Num => LiaToken::RustToken(RsToken::Literal(Lit::Integer(<Name>), _)),
+       Num => LiaToken::RustToken(RsToken::Literal(Lit::Int(<Name>), _)),
        String => LiaToken::RustToken(RsToken::Literal(Lit::Str_(<Name>), _)),
        Ident => LiaToken::RustToken(RsToken::Ident(<Ident>)),
-       Op => LiaToken::RustToken(RsToken::BinOp(<BinOpToken>)),
-       OpEq => LiaToken::RustToken(RsToken::BinOpEq(<BinOpToken>)),
+       Op => LiaToken::RustToken(RsToken::BinOp(<BinOp>)),
+       OpEq => LiaToken::RustToken(RsToken::BinOpEq(<BinOp>)),
        Eq => LiaToken::RustToken(RsToken::Eq),
        EqEq => LiaToken::RustToken(RsToken::EqEq),
        Ge => LiaToken::RustToken(RsToken::Ge),

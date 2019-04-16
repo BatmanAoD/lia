@@ -1,7 +1,5 @@
-use syntax::codemap::{Span, ExpnId, BytePos, Pos};
+use syn::{BinOp, Expr, Stmt, Item, Path, Ident, PathSegment, PathArguments, Token as RsToken};
 use syntax::ext::base::ExtCtxt;
-use syntax::ast::{Expr, Stmt, Item, Path, Ident, PathSegment, PathParameters};
-use syntax::parse::token::{Token as RsToken, BinOpToken, str_to_ident};
 use syntax::ptr::P;
 
 use ast::{LiaExpr, LiaStmt, LiaFn, prefix_ident};
@@ -12,16 +10,13 @@ fn rs_ident_to_path(mut segs: Vec<Ident>) -> Path {
         let last = &mut segs[len - 1];
         *last = prefix_ident(last, "_lia_");
     }
+    let span = segs.skip(1).fold(segs[0].span(), |span, seg| span.join(seg.span()));
     Path {
-        span: Span {
-            lo: BytePos::from_usize(0),
-            hi: BytePos::from_usize(0),
-            expn_id: ExpnId::from_u32(0),
-        },
+        span,
         global: false,
         segments: segs.into_iter().map(|seg| PathSegment {
             identifier: seg,
-            parameters: PathParameters::none()
+            parameters: PathArguments::none()
         }).collect()
     }
 }
@@ -32,30 +27,30 @@ fn gen_expr(cx: &mut ExtCtxt, expr: LiaExpr) -> P<Expr> {
             let s1 = gen_expr(cx, e1);
             let s2 = gen_expr(cx, e2);
             let (e, fun) = match op {
-                RsToken::BinOp(BinOpToken::Plus) =>
-                    (quote_expr!(cx, s1v + s2v),  str_to_ident("alloc_number")),
-                RsToken::BinOp(BinOpToken::Minus) =>
-                    (quote_expr!(cx, s1v - s2v),  str_to_ident("alloc_number")),
+                RsToken::BinOp(BinOp::Add) =>
+                    (quote_expr!(cx, s1v + s2v),  "alloc_number".into()),
+                RsToken::BinOp(BinOp::Sub) =>
+                    (quote_expr!(cx, s1v - s2v),  "alloc_number".into()),
                 RsToken::EqEq =>
-                    (quote_expr!(cx, s1v == s2v), str_to_ident("alloc_bool")),
+                    (quote_expr!(cx, s1v == s2v), "alloc_bool".into()),
                 RsToken::Le =>
-                    (quote_expr!(cx, s1v <= s2v), str_to_ident("alloc_bool")),
+                    (quote_expr!(cx, s1v <= s2v), "alloc_bool".into()),
                 RsToken::Lt =>
-                    (quote_expr!(cx, s1v < s2v),  str_to_ident("alloc_bool")),
+                    (quote_expr!(cx, s1v < s2v),  "alloc_bool".into()),
                 _ => {
                     let s = format!("Binop `{:?}` not yet implemented for numbers", op);
-                    (quote_expr!(cx, panic!($s)), str_to_ident("alloc_number"))
+                    (quote_expr!(cx, panic!($s)), "alloc_number".into())
                 }
             };
 
             let (se, sfun) = match op {
-                RsToken::BinOp(BinOpToken::Plus) =>
-                    (quote_expr!(cx, s1v.clone() + s2v.as_str()),  str_to_ident("alloc_string")),
+                RsToken::BinOp(BinOp::Add) =>
+                    (quote_expr!(cx, s1v.clone() + s2v.as_str()),  "alloc_string").into(),
                 RsToken::EqEq =>
-                    (quote_expr!(cx, s1v == s2v.as_str()), str_to_ident("alloc_bool")),
+                    (quote_expr!(cx, s1v == s2v.as_str()), "alloc_bool").into(),
                 _ => {
                     let s = format!("Binop `{:?}` not yet implemented for strings", op);
-                    (quote_expr!(cx, panic!($s)), str_to_ident("alloc_string"))
+                    (quote_expr!(cx, panic!($s)), "alloc_string").into()
                 }
             };
 
@@ -187,7 +182,7 @@ fn gen_expr(cx: &mut ExtCtxt, expr: LiaExpr) -> P<Expr> {
         },
         LiaExpr::Closure(mut args, stmts) => {
             use std::collections::{HashMap, HashSet};
-            args.insert(0, str_to_ident("this"));
+            args.insert(0, "this").into();
             let mut copies = Vec::new();
             let stmts = {
                 let mut bound = HashSet::new();
@@ -337,7 +332,7 @@ pub fn gen_fn(cx: &mut ExtCtxt, mut fun: LiaFn) -> P<Item> {
     let st: Vec<Stmt> = fun.body.into_iter().flat_map(|stmt| gen_stmt(cx, stmt)).collect();
     let id = prefix_ident(&fun.name, "_lia_");
     let mut binds = vec![];
-    fun.args.insert(0, str_to_ident("this"));
+    fun.args.insert(0, "this").into();
     for i in 0..fun.args.len() {
         let arg_id = fun.args[i];
         let s = format!("Arg {}", i);
