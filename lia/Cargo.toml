@@ -10,10 +10,10 @@ authors = ["Will Crichton <wcrichto@stanford.edu>"]
 build = "build.rs"
 
 [dependencies]
-lalrpop-util = "0.16.1"
+lalrpop-util = "*"
 
 [build-dependencies]
-lalrpop = "0.16.1"
+lalrpop = "*"
 
 [dependencies.syn]
 version = "*"
